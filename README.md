@@ -26,3 +26,5 @@ Have fun!
 ## TODO
 
 * Generate stubs automatically
+* Move the Python module generation a separate function in `build.zig`
+* Unify build process (so only one command would be run to build a package)
