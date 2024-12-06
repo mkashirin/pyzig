@@ -1,0 +1,11 @@
+# Python-generated files
+__pycache__/
+dist/
+
+# Virtual environments
+.venv/
+
+# Zig-generated files
+.zig-cache/
+*.so
+*.dll
