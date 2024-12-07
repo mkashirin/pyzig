@@ -31,7 +31,7 @@ pub var methods = [_:PyMethodDef{}]PyMethodDef{
 };
 
 pub var module = c.PyModuleDef{
-    .m_name = "pyzig",
+    .m_name = "summodule",
     .m_methods = &methods,
 };
 
