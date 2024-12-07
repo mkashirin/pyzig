@@ -35,6 +35,6 @@ pub var module = c.PyModuleDef{
     .m_methods = &methods,
 };
 
-pub export fn PyInit_pyzig() [*c]PyObject {
+pub export fn PyInit_summodule() [*c]PyObject {
     return c.PyModule_Create(&module);
 }
