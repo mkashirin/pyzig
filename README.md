@@ -6,10 +6,12 @@ Create Python native extensions using Zig and Python C API!
 
 ### Manual Build
 
-First, create and activate a virtual environment (using UV and bash):
-```
+First, create and activate a virtual environment and install dev dependencies
+(using UV and bash):
+```sh
 uv venv ".venv"
 source "./.venv/bin/activate"
+uv pip install -r pyproject.toml --extra dev
 ```
 Then build a shared library file by executing:
 ```sh
