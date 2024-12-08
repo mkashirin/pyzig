@@ -11,7 +11,7 @@ First, create and activate a virtual environment and install dev dependencies
 ```sh
 uv venv ".venv"
 source "./.venv/bin/activate"
-uv pip install -r pyproject.toml --extra dev
+uv pip install -r "pyproject.toml" --extra "dev"
 ```
 Then build a shared library file by executing:
 ```sh
@@ -24,7 +24,7 @@ uv pip install .
 ```
 Once the installation is complete, the test can be run as follows:
 ```sh
-python tests/test_summodule.py
+python "tests/test_summodule.py"
 ```
 
 ### Automated Build
@@ -34,7 +34,7 @@ to use (unset is for Python Ziglang module, 1 is for system-wide installed
 binary). Then create and activate a virtual environment (example above). After
 that, run the build shell script:
 ```sh
-bash build_python_library.sh
+bash "build_python_library.sh"
 ```
 Now, the tests can be run as the example from the previous section suggests.
 
