@@ -1,8 +1,4 @@
-const c = @cImport({
-    @cDefine("PY_SSIZE_T_CLEAN", "1");
-    @cInclude("Python.h");
-});
-
+const c = @import("c.zig");
 const PyObject = c.PyObject;
 const PyMethodDef = c.PyMethodDef;
 
@@ -21,6 +17,14 @@ pub export fn sum(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
     return c.PyLong_FromLong((a + b));
 }
 
+pub export fn mult(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
+    var a: c_long = undefined;
+    var b: c_long = undefined;
+    _ = self;
+    if (!(c._PyArg_ParseTuple_SizeT(args, "ll", &a, &b) != 0)) return null;
+    return c.PyLong_FromLong((a * b));
+}
+
 pub var methods = [_:PyMethodDef{}]PyMethodDef{
     PyMethodDef{
         .ml_name = "sum",
@@ -28,13 +32,19 @@ pub var methods = [_:PyMethodDef{}]PyMethodDef{
         .ml_flags = @as(c_int, 1),
         .ml_doc = null,
     },
+    PyMethodDef{
+        .ml_name = "mult",
+        .ml_meth = @ptrCast(@alignCast(&mult)),
+        .ml_flags = @as(c_int, 1),
+        .ml_doc = null,
+    },
 };
 
 pub var module = c.PyModuleDef{
-    .m_name = "summodule",
+    .m_name = "zigmodule",
     .m_methods = &methods,
 };
 
-pub export fn PyInit_summodule() [*c]PyObject {
+pub export fn PyInit_zigmodule() [*c]PyObject {
     return c.PyModule_Create(&module);
 }
