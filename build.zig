@@ -6,7 +6,7 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run unit tests");
 
-    var summodule = PythonModule.init(
+    var zigmodule = PythonModule.init(
         b,
         python_config.standardPythonConfigOptions(),
         .{
@@ -15,7 +15,7 @@ pub fn build(b: *std.Build) void {
             .target = b.standardTargetOptions(.{}),
         },
     );
-    summodule.install(test_step);
+    zigmodule.install(test_step);
 }
 
 fn pythonExe(b: *std.Build) []const u8 {
