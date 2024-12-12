@@ -9,7 +9,7 @@ const PyModuleDef_HEAD_INIT = c.PyModuleDef_Base{
     },
 };
 
-pub export fn sum(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
+pub export fn sumz(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
     var a: c_long = undefined;
     var b: c_long = undefined;
     _ = self;
@@ -17,7 +17,7 @@ pub export fn sum(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
     return c.PyLong_FromLong((a + b));
 }
 
-pub export fn mult(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
+pub export fn multz(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
     var a: c_long = undefined;
     var b: c_long = undefined;
     _ = self;
@@ -27,14 +27,14 @@ pub export fn mult(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
 
 pub var methods = [_:PyMethodDef{}]PyMethodDef{
     PyMethodDef{
-        .ml_name = "sum",
-        .ml_meth = @ptrCast(@alignCast(&sum)),
+        .ml_name = "sumz",
+        .ml_meth = @ptrCast(@alignCast(&sumz)),
         .ml_flags = @as(c_int, 1),
         .ml_doc = null,
     },
     PyMethodDef{
-        .ml_name = "mult",
-        .ml_meth = @ptrCast(@alignCast(&mult)),
+        .ml_name = "multz",
+        .ml_meth = @ptrCast(@alignCast(&multz)),
         .ml_flags = @as(c_int, 1),
         .ml_doc = null,
     },

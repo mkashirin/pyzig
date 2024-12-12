@@ -19,5 +19,6 @@ requires-python = "~=3.11"
 dev = [
     "hatch>=1.13.0",
     "ruff>=0.8.2",
+    "uv>=0.5.7",
     "ziglang~=0.13.0",
 ]
