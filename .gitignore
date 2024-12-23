@@ -7,5 +7,6 @@ dist/
 
 # Zig-generated files
 .zig-cache/
+src/c.zig
 *.so
 *.dll
