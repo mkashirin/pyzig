@@ -46,6 +46,7 @@ const PythonConfig = struct {
             .libpython = self.getLibpython(),
             .python_include_dir = self.getPythonIncludeDir(),
             .python_lib_dir = self.getPythonLibDir(),
+            .python_hexversion = self.getPythonHexversion(),
         };
     }
 
@@ -89,12 +90,21 @@ const PythonConfig = struct {
             "import sysconfig; print(sysconfig.get_config_var('LIBDIR'), end='')",
         ) catch @panic("Could not resolve Python lib directory");
     }
+
+    fn getPythonHexversion(self: *Self) []const u8 {
+        return execPythonCode(
+            self.allocator,
+            self.python_exe,
+            "import sys; print(f'{sys.hexversion & 0xFFFF0000:#010x}', end='')",
+        ) catch @panic("Could not resolve Python hexversion");
+    }
 };
 
 const PythonConfigOptions = struct {
     libpython: []const u8,
     python_include_dir: []const u8,
     python_lib_dir: []const u8,
+    python_hexversion: []const u8,
 };
 
 fn execPythonCode(
@@ -128,6 +138,10 @@ const PythonModule = struct {
         config: PythonConfigOptions,
         module: PythonModuleOptions,
     ) PythonModule {
+        _ = generateCImport(config.python_hexversion) catch {
+            @panic("Could not read Python hexversion");
+        };
+
         const mod = b.addSharedLibrary(.{
             .name = module.name,
             .root_source_file = module.root_source_file,
@@ -177,6 +191,24 @@ const PythonModuleOptions = struct {
     optimize: std.builtin.OptimizeMode = .ReleaseSafe,
     link_libc: bool = true,
 };
+
+fn generateCImport(hexver: []const u8) ![]const u8 {
+    var output_file = try std.fs.cwd().createFile("src/c.zig", .{});
+    defer output_file.close();
+
+    var source_buf: [512]u8 = undefined;
+    const fmt_source = try std.fmt.bufPrint(&source_buf,
+        \\pub usingnamespace @cImport({{
+        \\    @cDefine("Py_LIMITED_API", "{s}");
+        \\    @cDefine("PY_SSIZE_T_CLEAN", {{}});
+        \\    @cInclude("Python.h");
+        \\    @cInclude("structmember.h");
+        \\}});
+    , .{hexver});
+    try output_file.writeAll(fmt_source);
+
+    return fmt_source;
+}
 
 fn libraryDestRelPath(
     allocator: std.mem.Allocator,

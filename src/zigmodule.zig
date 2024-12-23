@@ -4,7 +4,7 @@ const PyMethodDef = c.PyMethodDef;
 
 const PyModuleDef_HEAD_INIT = c.PyModuleDef_Base{
     .ob_base = PyObject{
-        .unnamed_0 = 1, // `ob_refcnt` field
+        .ob_refcnt = 1,
         .ob_type = null,
     },
 };
@@ -13,7 +13,7 @@ pub export fn sumz(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
     var a: c_long = undefined;
     var b: c_long = undefined;
     _ = self;
-    if (!(c._PyArg_ParseTuple_SizeT(args, "ll", &a, &b) != 0)) return null;
+    if (!(c.PyArg_ParseTuple(args, "ll", &a, &b) != 0)) return null;
     return c.PyLong_FromLong((a + b));
 }
 
@@ -21,8 +21,16 @@ pub export fn multz(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
     var a: c_long = undefined;
     var b: c_long = undefined;
     _ = self;
-    if (!(c._PyArg_ParseTuple_SizeT(args, "ll", &a, &b) != 0)) return null;
+    if (!(c.PyArg_ParseTuple(args, "ll", &a, &b) != 0)) return null;
     return c.PyLong_FromLong((a * b));
+}
+
+pub export fn divz(self: [*]PyObject, args: [*]PyObject) [*c]PyObject {
+    var a: c_long = undefined;
+    var b: c_long = undefined;
+    _ = self;
+    if (!(c.PyArg_ParseTuple(args, "ll", &a, &b) != 0)) return null;
+    return c.PyLong_FromLong(@divExact(a, b));
 }
 
 pub var methods = [_:PyMethodDef{}]PyMethodDef{
@@ -35,6 +43,12 @@ pub var methods = [_:PyMethodDef{}]PyMethodDef{
     PyMethodDef{
         .ml_name = "multz",
         .ml_meth = @ptrCast(@alignCast(&multz)),
+        .ml_flags = @as(c_int, 1),
+        .ml_doc = null,
+    },
+    PyMethodDef{
+        .ml_name = "divz",
+        .ml_meth = @ptrCast(@alignCast(&divz)),
         .ml_flags = @as(c_int, 1),
         .ml_doc = null,
     },
