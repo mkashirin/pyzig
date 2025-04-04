@@ -15,6 +15,8 @@ pub fn build(b: *std.Build) void {
             .target = b.standardTargetOptions(.{}),
         },
     );
+    const check = b.step("check", "Check if module compiles");
+    check.dependOn(zigmodule.install_step);
     zigmodule.install(test_step);
 }
 

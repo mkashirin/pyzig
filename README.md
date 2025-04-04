@@ -9,7 +9,7 @@ Create Python native extensions using Zig and Python C API!
 First, create and activate a virtual environment and install dev dependencies
 (using UV and bash):
 ```sh
-uv venv ".venv"
+uv venv
 source ".venv/bin/activate"
 uv pip install -r "pyproject.toml" --extra "dev"
 ```
@@ -28,8 +28,8 @@ uv pip install "."
 
 ### Automated Build and Installation
 
-Use `ZIG_INSTALLED` environment varibale to specify what type of Zig compiler
-to use (unset is for Python Ziglang module, 1 is for system-wide installed
+Use `ZIG_INSTALLED` environment variable to specify what type of Zig compiler
+to use (unset is for Python Zig module, 1 is for system-wide installed
 binary). Then create and activate a virtual environment (example above). After
 that, run the build shell script:
 ```sh
@@ -40,12 +40,12 @@ bash "build_python_library.sh"
 
 Once the installation is complete, the test can be run as follows:
 ```sh
-python "tests/test_summodule.py"
+python "tests/test_zigmodule.py"
 ```
 
 Have fun!
 
-## TODO
+## TODOs
 
-* Generate stubs automatically
-* Build some Zig API for more convinient interaction with Python C API.
+- Generate stubs automatically
+- Build some Zig API for more convinient interaction with Python C API.
