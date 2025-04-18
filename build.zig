@@ -11,12 +11,12 @@ pub fn build(b: *std.Build) void {
         python_config.standardPythonConfigOptions(),
         .{
             .name = "pyzig.zigmodule",
-            .root_source_file = b.path("src/zigmodule.zig"),
-            .target = b.standardTargetOptions(.{}),
+            .root_source_file = b.path("src/root.zig"),
+            .target = b.graph.host,
         },
     );
     const check = b.step("check", "Check if module compiles");
-    check.dependOn(zigmodule.install_step);
+    check.dependOn(&zigmodule.lib.step);
     zigmodule.install(test_step);
 }
 
@@ -61,12 +61,12 @@ const PythonConfig = struct {
 
         var libname = ldlibrary;
 
-        // Strip `libpython3.11.a.so` to `python3.11.a.so`
+        // Strip `libpython3.x.a.so` to `python3.x.a.so`
         if (std.mem.eql(u8, ldlibrary[0..3], "lib")) {
             libname = libname[3..];
         }
 
-        // Strip `python3.11.a.so` to `python3.11.a`
+        // Strip `python3.x.a.so` to `python3.x.a`
         const last_index = std.mem.lastIndexOfScalar(
             u8,
             libname,
@@ -97,7 +97,7 @@ const PythonConfig = struct {
         return execPythonCode(
             self.allocator,
             self.python_exe,
-            "import sys; print(f'{sys.hexversion & 0xFFFF0000:#010x}', end='')",
+            "import sys; print(f'{sys.hexversion:#010x}', end='')",
         ) catch @panic("Could not resolve Python hexversion");
     }
 };
@@ -132,7 +132,7 @@ fn execPythonCode(
 const PythonModule = struct {
     const Self = @This();
     b: *std.Build,
-    install_step: *std.Build.Step,
+    lib: *std.Build.Step.Compile,
     run_tests: *std.Build.Step,
 
     fn init(
@@ -143,24 +143,23 @@ const PythonModule = struct {
         _ = generateCImport(config.python_hexversion) catch {
             @panic("Could not read Python hexversion");
         };
-
-        const mod = b.addSharedLibrary(.{
-            .name = module.name,
+        const mod = b.createModule(.{
             .root_source_file = module.root_source_file,
             .target = module.target,
             .optimize = module.optimize,
             .link_libc = module.link_libc,
         });
-        mod.addIncludePath(.{ .cwd_relative = config.python_include_dir });
-        mod.linker_allow_shlib_undefined = true;
-        const mod_install = b.addInstallFileWithDir(
-            mod.getEmittedBin(),
-            .{ .custom = ".." },
-            libraryDestRelPath(b.allocator, module.name) catch @panic("OOM"),
-        );
+
+        const lib = b.addLibrary(.{
+            .linkage = .dynamic,
+            .name = module.name,
+            .root_module = mod,
+        });
+        lib.addIncludePath(.{ .cwd_relative = config.python_include_dir });
+        lib.linker_allow_shlib_undefined = true;
 
         const mod_unit_tests = b.addTest(.{
-            .root_source_file = module.root_source_file,
+            .root_module = mod,
             .target = module.target,
             .optimize = module.optimize,
         });
@@ -175,13 +174,20 @@ const PythonModule = struct {
 
         return .{
             .b = b,
-            .install_step = &mod_install.step,
+            .lib = lib,
             .run_tests = &run_mod_unit_tests.step,
         };
     }
 
     fn install(self: *Self, test_step: *std.Build.Step) void {
-        self.b.getInstallStep().dependOn(self.install_step);
+        const lib_install = self.b.addInstallFileWithDir(
+            self.lib.getEmittedBin(),
+            .{ .custom = ".." },
+            libraryDestRelPath(self.b.allocator, self.lib.name) catch {
+                @panic("OOM");
+            },
+        );
+        self.b.getInstallStep().dependOn(&lib_install.step);
         test_step.dependOn(self.run_tests);
     }
 };
@@ -204,6 +210,7 @@ fn generateCImport(hexver: []const u8) ![]const u8 {
         \\    @cDefine("Py_LIMITED_API", "{s}");
         \\    @cDefine("PY_SSIZE_T_CLEAN", {{}});
         \\    @cInclude("Python.h");
+        \\    // Automatically included since 3.12:
         \\    @cInclude("structmember.h");
         \\}});
     , .{hexver});

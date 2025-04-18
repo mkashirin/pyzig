@@ -1,12 +1,13 @@
 .{
-    .name = "pyzig",
+    .name = .pyzig,
     .version = "0.1.0",
-    .minimum_zig_version = "0.13.0",
+    .minimum_zig_version = "0.14.0",
+    .fingerprint = 0x174831572c0038d0,
     .paths = .{
         "build.zig",
         "build.zig.zon",
-        "src/",
-        "pyzig/",
-        "tests/",
+        "src",
+        "pyzig",
+        "tests",
     },
 }
