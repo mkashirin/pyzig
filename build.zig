@@ -158,11 +158,7 @@ const PythonModule = struct {
         lib.addIncludePath(.{ .cwd_relative = config.python_include_dir });
         lib.linker_allow_shlib_undefined = true;
 
-        const mod_unit_tests = b.addTest(.{
-            .root_module = mod,
-            .target = module.target,
-            .optimize = module.optimize,
-        });
+        const mod_unit_tests = b.addTest(.{ .root_module = mod });
         mod_unit_tests.linkSystemLibrary(config.libpython);
         mod_unit_tests.addIncludePath(.{
             .cwd_relative = config.python_include_dir,
@@ -206,7 +202,7 @@ fn generateCImport(hexver: []const u8) ![]const u8 {
 
     var source_buf: [512]u8 = undefined;
     const fmt_source = try std.fmt.bufPrint(&source_buf,
-        \\pub usingnamespace @cImport({{
+        \\pub const Import = @cImport({{
         \\    @cDefine("Py_LIMITED_API", "{s}");
         \\    @cDefine("PY_SSIZE_T_CLEAN", {{}});
         \\    @cInclude("Python.h");

@@ -1,4 +1,4 @@
-const c = @import("c.zig");
+const c = @import("c.zig").Import;
 const PyObject = c.PyObject;
 const PyMethodDef = c.PyMethodDef;
 

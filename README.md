@@ -10,8 +10,8 @@ First, create and activate a virtual environment and install dev dependencies
 (using UV and bash):
 ```sh
 uv venv
-source ".venv/bin/activate"
-uv pip install -r "pyproject.toml" --extra "dev"
+source .venv/bin/activate
+uv pip install -r pyproject.toml --extra dev
 ```
 
 ### Manual Build and Installation
@@ -23,7 +23,7 @@ zig build
 The Python package can be now built and installed like so (using UV):
 ```sh
 uv build
-uv pip install "."
+uv pip install .
 ```
 
 ### Automated Build and Installation
@@ -33,14 +33,14 @@ to use (unset is for Python Zig module, 1 is for system-wide installed
 binary). Then create and activate a virtual environment (example above). After
 that, run the build shell script:
 ```sh
-bash "build_python_library.sh"
+source install.sh
 ```
 
 ### Testing
 
 Once the installation is complete, the test can be run as follows:
 ```sh
-python "tests/test_zigmodule.py"
+python tests/test_zigmodule.py
 ```
 
 Have fun!
